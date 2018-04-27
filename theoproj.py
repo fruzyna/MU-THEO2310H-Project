@@ -130,9 +130,15 @@ raw
 # In[7]:
 
 
+raw.columns
+
+
+# In[8]:
+
+
 # Collect columns we need and process into a cleaner table
 pd.options.mode.chained_assignment = None
-processed = raw[['Title', 'Object Date', 'Artist Display Name', 'Credit Line', 'Link Resource']]
+processed = raw[['Title', 'Object Date', 'Artist Display Name', 'Credit Line', 'Link Resource', 'Object Name']]
 processed['Year'] = processed['Object Date'].apply(lambda x: getDate2(str(x)))
 processed = processed.loc[processed['Year'] <= 2018]
 processed['Century'] = processed['Year'].apply(lambda x: getCentury(x))
@@ -143,13 +149,13 @@ processed['Purchased'] = processed['Credit Line'].apply(lambda x: isPurchased(x)
 processed['Artist'] = processed['Artist Display Name']
 
 
-# In[8]:
-
-
-slim = processed[['Title', 'Artist', 'Century', 'Year', 'Donor', 'Donation Year', 'Purchased']]
-
-
 # In[9]:
+
+
+slim = processed[['Title', 'Artist', 'Century', 'Year', 'Donor', 'Donation Year', 'Purchased', 'Object Name']]
+
+
+# In[10]:
 
 
 # Attempt to sort out Christian artworks
@@ -158,7 +164,7 @@ comparison = only('|'.join(cStrings))
 comparison
 
 
-# In[10]:
+# In[11]:
 
 
 cArt = slim.loc[slim['Title'].str.contains(comparison, na=False, case=False)]
@@ -169,7 +175,7 @@ cArt.to_csv('christian-art.csv')
 cArt
 
 
-# In[11]:
+# In[12]:
 
 
 # Count amount of Christian artworks in each century
@@ -178,7 +184,7 @@ centuries = centuries.sort_index()
 #centuries
 
 
-# In[12]:
+# In[13]:
 
 
 # Count amount of all atrworks in each century A.D.
@@ -187,7 +193,7 @@ acenturies = acenturies.sort_index()
 #acenturies
 
 
-# In[13]:
+# In[14]:
 
 
 # Calculate the percentage of christian art to all art in each century
@@ -196,7 +202,7 @@ percent = percent.fillna(0)
 #percent
 
 
-# In[14]:
+# In[15]:
 
 
 # Plot each count of art per century
@@ -207,22 +213,23 @@ cAxis.set_xlabel('Century')
 #cAxis.set_ylabel('All Art')
 
 
-# In[15]:
+# In[16]:
 
 
 # Plot percentage of christian art to all art
 pAxis = percent.plot(kind = 'line', title='Percentage of Christian Art to All Art at the Met by Century', figsize = (15,5))
 
 
-# In[16]:
+# In[17]:
 
 
 # Count christian art donors
 donations = cArt['Donor'].value_counts()
 #donations
+len(donations)
 
 
-# In[17]:
+# In[18]:
 
 
 # Count art donors
@@ -230,27 +237,27 @@ adonations = slim['Donor'].value_counts()
 #adonations
 
 
-# In[18]:
+# In[19]:
 
 
 donations[:25].plot(kind='Bar', figsize = (15,5))
 
 
-# In[19]:
+# In[20]:
 
 
 purchases = cArt['Purchased'].value_counts()
 purchases
 
 
-# In[20]:
+# In[21]:
 
 
 aPurchases = slim['Purchased'].value_counts()
 aPurchases
 
 
-# In[21]:
+# In[22]:
 
 
 # Count christians art donors
@@ -258,7 +265,7 @@ artists = cArt['Artist'].value_counts()
 #artists
 
 
-# In[22]:
+# In[23]:
 
 
 # Count art donors
@@ -266,7 +273,7 @@ aartists = slim['Artist'].value_counts()
 #aartists
 
 
-# In[23]:
+# In[24]:
 
 
 # Attempt to find all instances of Madonna and Child
@@ -285,7 +292,7 @@ lam = cArt.loc[cArt['Title'].str.contains('lamentation', na=False, case=False)]
 st = cArt.loc[cArt['Title'].str.contains('saint', na=False, case=False)]
 
 
-# In[24]:
+# In[25]:
 
 
 ax = cArt['Century'].value_counts().sort_index().plot(kind='bar', title='All Christian Art')
@@ -293,7 +300,7 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[25]:
+# In[26]:
 
 
 #fig = ff.create_2d_density(
@@ -303,7 +310,7 @@ ax.set_xlabel('Century')
 #plotly.offline.iplot(fig)
 
 
-# In[26]:
+# In[27]:
 
 
 # Try to determine what was happened just before 1920
@@ -312,7 +319,7 @@ bump = bump['Donation Year'].value_counts()
 bump.plot(kind='bar')
 
 
-# In[27]:
+# In[28]:
 
 
 bDonors = cArt.loc[cArt['Donation Year'] == 1917]['Donor'].value_counts()
@@ -321,7 +328,7 @@ bDonors.plot(kind='bar')
 # Looks like joseph pulitzer, whos prize started in 1917 6 years after he died
 
 
-# In[28]:
+# In[29]:
 
 
 #fig = ff.create_2d_density(
@@ -331,7 +338,7 @@ bDonors.plot(kind='bar')
 #plotly.offline.iplot(fig)
 
 
-# In[29]:
+# In[30]:
 
 
 ax = mc['Century'].value_counts().sort_index().plot(kind='bar', title='Madonna and Child')
@@ -339,7 +346,7 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[30]:
+# In[31]:
 
 
 #fig = ff.create_2d_density(
@@ -349,7 +356,7 @@ ax.set_xlabel('Century')
 #plotly.offline.iplot(fig)
 
 
-# In[31]:
+# In[32]:
 
 
 ax = crux['Century'].value_counts().sort_index().plot(kind='bar', title='Crucifixions')
@@ -357,14 +364,20 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[32]:
+# In[33]:
 
 
 cDonors = crux.loc[crux['Donation Year'] == 1917]['Donor'].value_counts()
-cDonors.plot(kind='bar')
+cDonors.plot(kind='bar', title='Donors of Crucifixions in 1917')
 
 
-# In[33]:
+# In[34]:
+
+
+len(cArt.loc[(cArt['Donor'] == 'Gift of J. Pierpont Morgan') & (cArt['Donation Year'] == 1917)])
+
+
+# In[35]:
 
 
 #fig = ff.create_2d_density(
@@ -374,7 +387,7 @@ cDonors.plot(kind='bar')
 #plotly.offline.iplot(fig)
 
 
-# In[34]:
+# In[36]:
 
 
 ax = lj['Century'].value_counts().sort_index().plot(kind='bar', title='Last Judgement')
@@ -382,7 +395,7 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[35]:
+# In[37]:
 
 
 #fig = ff.create_2d_density(
@@ -392,7 +405,7 @@ ax.set_xlabel('Century')
 #plotly.offline.iplot(fig)
 
 
-# In[36]:
+# In[38]:
 
 
 ax = lam['Century'].value_counts().sort_index().plot(kind='bar', title='Lamentation')
@@ -400,7 +413,7 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[37]:
+# In[39]:
 
 
 #fig = ff.create_2d_density(
@@ -410,7 +423,7 @@ ax.set_xlabel('Century')
 #plotly.offline.iplot(fig)
 
 
-# In[38]:
+# In[40]:
 
 
 ax = st['Century'].value_counts().sort_index().plot(kind='bar', title='Saints')
@@ -418,123 +431,155 @@ ax.set_ylabel('Pieces')
 ax.set_xlabel('Century')
 
 
-# In[39]:
+# In[41]:
 
 
 lj['Donor'].value_counts()
 
 
-# In[40]:
+# In[42]:
 
 
 crux.describe()
 
 
-# In[41]:
+# In[43]:
 
 
 mc.describe()
 
 
-# In[42]:
+# In[44]:
 
 
 st.describe()
 
 
-# In[43]:
+# In[45]:
 
 
 crux.loc[crux['Donor'] == 'Gift of J. Pierpont Morgan']
 
 
-# In[44]:
+# In[46]:
 
 
 raw.loc['17.190.44', 'Link Resource']
 
 
-# In[45]:
+# In[47]:
 
 
 crux.loc[crux['Donation Year'] == 1955]
 
 
-# In[46]:
+# In[68]:
 
 
-raw.loc['49.97.191', 'Link Resource']
+raw.loc['55.5', 'Link Resource']
 
 
-# In[47]:
+# In[49]:
 
 
 mc = mc.sort_values(by=['Year'])
 mc.iloc[0]
 
 
-# In[48]:
+# In[50]:
 
 
 raw.loc['17.190.39', 'Link Resource']
 
 
-# In[49]:
+# In[51]:
 
 
 mc.iloc[-1]
 
 
-# In[50]:
+# In[52]:
 
 
 raw.loc['66.764.2', 'Link Resource']
 
 
-# In[51]:
+# In[67]:
 
 
-Counter(" ".join(cArt["Title"]).split()).most_common(100)
-
-
-# In[52]:
-
-
-st.loc[st['Century'] == 17]
-
-
-# In[65]:
-
-
-st.loc[st['Title'].str.contains('Holy Family')]
+# Most common words (all with over 100 mentions)
+Counter(" ".join(cArt["Title"]).split()).most_common(17)
 
 
 # In[54]:
 
 
+st.loc[st['Century'] == 17]
+
+
+# In[55]:
+
+
+st.loc[st['Title'].str.contains('Holy Family')]
+
+
+# In[56]:
+
+
 raw.loc['21.159.2', 'Link Resource']
-
-
-# In[67]:
-
-
-raw.loc['21.36.280', 'Link Resource']
 
 
 # In[57]:
 
 
-mc.loc[mc['Century'] == 13]
+raw.loc['21.36.280', 'Link Resource']
 
 
 # In[58]:
 
 
-mc.loc[mc['Century'] == 16]
+mc.loc[mc['Century'] == 13]
 
 
 # In[59]:
 
 
+mc.loc[mc['Century'] == 16]
+
+
+# In[60]:
+
+
 raw.loc['SL.6.2017.29.1', 'Link Resource']
+
+
+# In[61]:
+
+
+# Get counts of values
+locs = ['City', 'State', 'County', 'Country', 'Region', 'Subregion', 'Locale', 'Locus', 'Excavation', 'River']
+leng = len(raw.index)
+pcents = [100*raw[l].isnull().sum() / leng for l in locs]
+pd.Series(data=pcents, index=locs)
+
+
+# In[62]:
+
+
+medium = cArt['Object Name'].value_counts()
+ax = medium[:10].plot(kind='bar', title='Top 10 Types of Art', figsize = (12,8))
+ax.set_ylabel('Count')
+ax.set_xlabel('Type')
+
+
+# In[63]:
+
+
+len(medium)
+
+
+# In[64]:
+
+
+len(slim['Object Name'].value_counts())
 
